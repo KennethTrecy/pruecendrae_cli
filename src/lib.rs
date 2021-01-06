@@ -1,0 +1,27 @@
+#[cfg(test)]
+mod t {
+	use std::net::UdpSocket;
+
+	const TARGET_SEND_SIZE: usize = 10;
+	const TARGET_PREPARED_RECEIVE_SIZE: usize = 20;
+	const SEND_DATA: [u8; TARGET_SEND_SIZE] = [1 as u8; TARGET_SEND_SIZE];
+	const SERVER_ADDRESS: &str = "127.0.0.1:7000";
+	const CLIENT_ADDRESS: &str = "127.0.0.1:7001";
+
+	#[test]
+	fn can_receive() {
+		let socket = UdpSocket::bind(SERVER_ADDRESS).unwrap();
+		let mut data = std::vec![0; TARGET_PREPARED_RECEIVE_SIZE];
+
+		let (size, address) = socket.recv_from(&mut data).unwrap();
+
+		assert_eq!(size, 10);
+		assert_eq!(address.to_string(), CLIENT_ADDRESS);
+	}
+
+	#[test]
+	fn can_send() {
+		let socket = UdpSocket::bind(CLIENT_ADDRESS).unwrap();
+		socket.send_to(&SEND_DATA, SERVER_ADDRESS).unwrap();
+	}
+}
