@@ -15,7 +15,7 @@ mod t {
 
 		let (size, address) = socket.recv_from(&mut data).unwrap();
 
-		assert_eq!(size, 10);
+		assert_eq!(size, TARGET_SEND_SIZE);
 		assert_eq!(address.to_string(), CLIENT_ADDRESS);
 	}
 
