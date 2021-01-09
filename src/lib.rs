@@ -52,6 +52,12 @@ pub fn spawn_server(address: impl ToSocketAddrs) -> JoinHandle<()> {
 						}
 					}
 				}
+
+				let mut compiled_responses = String::new();
+				for tasks in present_tasks_per_request {
+					let response = maintainer.receive_response(tasks);
+					compiled_responses += &String::from(response);
+				}
 			}
 
 			break;
