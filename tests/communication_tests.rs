@@ -37,3 +37,9 @@ test!{
 	with b"create\n\tfake|\n\tcommand: cargo run --bin fake_program\noutput\nmax output size: 100\n\tfake|\n"
 	expecting b"output\n\tsuccesses\n\t\tfake\n\t\t\t===\n0\n\n\t\t\t===\n"
 }
+
+test!{
+	using port 7503, can_check_task
+	with b"create\n\tfake|\n\tcommand: cargo run --bin fake_program\ncheck\n\tfake|\n"
+	expecting b"check\n\tsuccesses\n\t\tfake|\n"
+}

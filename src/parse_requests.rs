@@ -3,9 +3,11 @@ use crate::request::Request;
 
 mod parse_create_request;
 mod parse_output_request;
+mod parse_check_request;
 
 use parse_create_request::parse_create_request;
 use parse_output_request::parse_output_request;
+use parse_check_request::parse_check_request;
 
 pub fn parse_requests(src: &[u8]) -> (Vec<Result<Request, ()>>, bool) {
 	let nodes = parse(src);
@@ -15,6 +17,7 @@ pub fn parse_requests(src: &[u8]) -> (Vec<Result<Request, ()>>, bool) {
 		let request = match node {
 			Node::Complex(b"create", _, tasks) => parse_create_request(tasks),
 			Node::Complex(b"output", infos, task_names) => parse_output_request(infos, task_names),
+			Node::Complex(b"check", _, task_names) => parse_check_request(task_names),
 			_ => todo!()
 		};
 		requests.push(request);
