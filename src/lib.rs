@@ -1,3 +1,5 @@
+mod request;
+
 use std::net::{UdpSocket, ToSocketAddrs};
 use std::thread::{JoinHandle, spawn};
 
