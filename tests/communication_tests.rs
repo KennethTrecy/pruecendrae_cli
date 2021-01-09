@@ -6,6 +6,7 @@ macro_rules! test {
 	(
 		using port $port:literal,
 		$test_name:ident with $payload:literal
+		$(then manipulate server by $function:ident)?
 		expecting $expected_reply:literal
 	) => {
 		#[test]
@@ -18,7 +19,12 @@ macro_rules! test {
 
 			socket.send_to(&$payload[..], &server_address).unwrap();
 			let mut buffer = [0; 1000];
-			let (size, address) = socket.recv_from(&mut buffer).unwrap();
+			let (size, address) = socket.recv_from(&mut buffer).unwrap_or_else(|_| (0, server_address));
+
+			$(
+				let server = _server;
+				$function(server);
+			)?
 
 			assert_eq!(address, server_address);
 			assert_eq!(&buffer[0..size], $expected_reply);
@@ -42,4 +48,17 @@ test!{
 	using port 7503, can_check_task
 	with b"create\n\tfake|\n\tcommand: cargo run --bin fake_program\ncheck\n\tfake|\n"
 	expecting b"check\n\tsuccesses\n\t\tfake|\n"
+}
+
+use std::thread::JoinHandle;
+
+fn join_server(server: JoinHandle<()>) {
+	server.join().unwrap();
+}
+
+test!{
+	using port 7504, can_force_kill_server
+	with b"create\n\tfake|\n\tcommand: cargo run --bin fake_program\nforce kill|\n"
+	then manipulate server by join_server
+	expecting b""
 }
