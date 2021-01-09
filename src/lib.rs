@@ -30,7 +30,7 @@ pub fn spawn_server(address: impl ToSocketAddrs) -> JoinHandle<()> {
 		let mut buffer = [0; MAX_BUFFER_SIZE];
 
 		loop {
-			let (size, _address) = socket.recv_from(&mut buffer).unwrap();
+			let (size, address) = socket.recv_from(&mut buffer).unwrap();
 			let requests = &buffer[0..size];
 			let (requests, are_all_ok) = parse_requests(requests);
 
@@ -58,11 +58,9 @@ pub fn spawn_server(address: impl ToSocketAddrs) -> JoinHandle<()> {
 					let response = maintainer.receive_response(tasks);
 					compiled_responses += &String::from(response);
 				}
+
+				socket.send_to(compiled_responses.as_bytes(), address).unwrap();
 			}
-
-			break;
 		}
-
-		todo!();
 	})
 }
