@@ -53,13 +53,13 @@ pub fn spawn_server(address: impl ToSocketAddrs) -> JoinHandle<()> {
 					}
 				}
 
-				let mut compiled_responses = String::new();
+				let mut encoded_responses = String::new();
 				for tasks in present_tasks_per_request {
 					let response = maintainer.receive_response(tasks);
-					compiled_responses += &String::from(response);
+					encoded_responses += &String::from(response);
 				}
 
-				socket.send_to(compiled_responses.as_bytes(), address).unwrap();
+				socket.send_to(encoded_responses.as_bytes(), address).unwrap();
 			}
 		}
 	})
