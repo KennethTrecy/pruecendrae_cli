@@ -2,8 +2,10 @@ use chearmyp::parse::{Node, parse};
 use crate::request::Request;
 
 mod parse_create_request;
+mod parse_output_request;
 
 use parse_create_request::parse_create_request;
+use parse_output_request::parse_output_request;
 
 pub fn parse_requests(src: &[u8]) -> (Vec<Result<Request, ()>>, bool) {
 	let nodes = parse(src);
@@ -12,6 +14,7 @@ pub fn parse_requests(src: &[u8]) -> (Vec<Result<Request, ()>>, bool) {
 	for node in nodes {
 		let request = match node {
 			Node::Complex(b"create", _, tasks) => parse_create_request(tasks),
+			Node::Complex(b"output", infos, task_names) => parse_output_request(infos, task_names),
 			_ => todo!()
 		};
 		requests.push(request);
@@ -37,6 +40,21 @@ mod t {
 		assert_eq!(parsed_requests, (vec![
 			Ok(
 				Request::Create(vec![("task A", b"task_a")])
+			)
+		], true));
+	}
+
+	use pruecendrae_core::Request as MaintainerRequest;
+
+	#[test]
+	pub fn can_parse_output_request() {
+		let sample = b"output\nmax output size: 10\n\ttask B|\n\tcommand: task_b";
+
+		let parsed_requests = parse_requests(sample);
+
+		assert_eq!(parsed_requests, (vec![
+			Ok(
+				Request::Maintainer(MaintainerRequest::Output(10, vec!["task B"]))
 			)
 		], true));
 	}
