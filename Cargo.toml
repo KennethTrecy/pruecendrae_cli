@@ -4,7 +4,6 @@ version = "0.1.0-dev"
 authors = ["Kenneth Trecy Tobias <33564322+KennethTrecy@users.noreply.github.com>"]
 edition = "2018"
 
-[workspace]
-members = [
-	"hidden_dependencies"
-]
+[dependencies]
+chearmyp = { git = "http://repo.local/KennethTrecy/chearmyp", branch = "dev" }
+pruecendrae_core = { git = "http://repo.local/KennethTrecy/pruecendrae_core", branch = "dev" }
