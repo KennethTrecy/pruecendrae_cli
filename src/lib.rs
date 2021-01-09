@@ -29,7 +29,7 @@ pub fn spawn_server(address: impl ToSocketAddrs) -> JoinHandle<()> {
 		let mut maintainer = TaskMaintainer::new();
 		let mut buffer = [0; MAX_BUFFER_SIZE];
 
-		loop {
+		'server: loop {
 			let (size, address) = socket.recv_from(&mut buffer).unwrap();
 			let requests = &buffer[0..size];
 			let (requests, are_all_ok) = parse_requests(requests);
@@ -51,7 +51,7 @@ pub fn spawn_server(address: impl ToSocketAddrs) -> JoinHandle<()> {
 							present_tasks_per_request.push(present_tasks);
 						},
 						Request::ForceKill => {
-							break;
+							break 'server;
 						}
 					}
 				}
