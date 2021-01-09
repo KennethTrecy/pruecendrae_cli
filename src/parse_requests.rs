@@ -18,6 +18,7 @@ pub fn parse_requests(src: &[u8]) -> (Vec<Result<Request, ()>>, bool) {
 			Node::Complex(b"create", _, tasks) => parse_create_request(tasks),
 			Node::Complex(b"output", infos, task_names) => parse_output_request(infos, task_names),
 			Node::Complex(b"check", _, task_names) => parse_check_request(task_names),
+			Node::Simplex(b"force_kill", _) => Ok(Request::ForceKill),
 			_ => todo!()
 		};
 		requests.push(request);

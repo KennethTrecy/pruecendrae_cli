@@ -49,6 +49,9 @@ pub fn spawn_server(address: impl ToSocketAddrs) -> JoinHandle<()> {
 						Request::Maintainer(maintainer_request) => {
 							let present_tasks	 = maintainer.send_request(maintainer_request);
 							present_tasks_per_request.push(present_tasks);
+						},
+						Request::ForceKill => {
+							break;
 						}
 					}
 				}
