@@ -36,6 +36,7 @@ pub fn spawn_server(address: impl ToSocketAddrs) -> JoinHandle<()> {
 
 			if are_all_ok {
 				let mut present_tasks_per_request = Vec::with_capacity(requests.len());
+				let mut encoded_responses = String::new();
 
 				for request in requests {
 					let request = request.unwrap();
@@ -50,13 +51,19 @@ pub fn spawn_server(address: impl ToSocketAddrs) -> JoinHandle<()> {
 							let present_tasks	 = maintainer.send_request(maintainer_request);
 							present_tasks_per_request.push(present_tasks);
 						},
+						Request::List => {
+							let task_names = maintainer.list();
+							encoded_responses += "list\n\tsuccesses\n";
+							for task_name in task_names {
+								encoded_responses += &format!("\t\t{}|\n", task_name);
+							}
+						},
 						Request::ForceKill => {
 							break 'server;
 						}
 					}
 				}
 
-				let mut encoded_responses = String::new();
 				for tasks in present_tasks_per_request {
 					let response = maintainer.receive_response(tasks);
 					encoded_responses += &String::from(response);

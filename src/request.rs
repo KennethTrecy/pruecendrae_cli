@@ -4,5 +4,6 @@ use pruecendrae_core::Request as MaintainerRequest;
 pub enum Request<'a> {
 	Create(Vec<(&'a str, &'a [u8])>),
 	Maintainer(MaintainerRequest<'a>),
+	List,
 	ForceKill
 }

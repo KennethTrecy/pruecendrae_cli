@@ -62,3 +62,9 @@ test!{
 	then manipulate server by join_server
 	expecting b""
 }
+
+test!{
+	using port 7505, can_list_task
+	with b"create\n\tfake|\n\tcommand: cargo run --bin fake_program\nlist|\n"
+	expecting b"list\n\tsuccesses\n\t\tfake|\n"
+}

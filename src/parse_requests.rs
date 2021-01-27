@@ -18,6 +18,7 @@ pub fn parse_requests(src: &[u8]) -> (Vec<Result<Request, ()>>, bool) {
 			Node::Complex(b"create", _, tasks) => parse_create_request(tasks),
 			Node::Complex(b"output", infos, task_names) => parse_output_request(infos, task_names),
 			Node::Complex(b"check", _, task_names) => parse_check_request(task_names),
+			Node::Simplex(b"list", _) => Ok(Request::List),
 			Node::Simplex(b"force kill", _) => Ok(Request::ForceKill),
 			_ => todo!()
 		};
@@ -61,5 +62,14 @@ mod t {
 				Request::Maintainer(MaintainerRequest::Output(10, vec!["task B"]))
 			)
 		], true));
+	}
+
+	#[test]
+	pub fn can_parse_list_request() {
+		let sample = b"list|\n";
+
+		let parsed_requests = parse_requests(sample);
+
+		assert_eq!(parsed_requests, (vec![Ok(Request::List)], true));
 	}
 }
