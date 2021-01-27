@@ -66,5 +66,5 @@ test!{
 test!{
 	using port 7505, can_list_task
 	with b"create\n\tfake|\n\tcommand: cargo run --bin fake_program\nlist|\n"
-	expecting b"list\n\tsuccesses\n\t\tfake|\n"
+	expecting b"list\n\tsuccesses\n\t\tfake|\n\t\tcommand: cargo run --bin fake_program\n"
 }

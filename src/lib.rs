@@ -19,6 +19,7 @@ pub fn process_task_info(task: &[u8], address: &str) {
 	}
 }
 
+use std::net::Ipv4Addr;
 use pruecendrae_core::TaskMaintainer;
 use request::Request;
 use parse_requests::parse_requests;
@@ -58,8 +59,8 @@ pub fn spawn_server(address: impl ToSocketAddrs) -> JoinHandle<()> {
 						Request::List => {
 							let task_names = maintainer.list();
 							encoded_responses += "list\n\tsuccesses\n";
-							for task_name in task_names {
-								encoded_responses += &format!("\t\t{}|\n", task_name);
+							for (name, command) in task_names {
+								encoded_responses += &format!("\t\t{}|\n\t\tcommand: {}\n", name, command);
 							}
 						},
 						Request::ForceKill => {
