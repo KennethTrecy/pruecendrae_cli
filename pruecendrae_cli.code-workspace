@@ -1,7 +1,8 @@
 {
 	"folders": [
 		// {"path": ".", "name": "root"},
-		{"path": "src", "name": "source"}
+		{"path": "src", "name": "source"},
+		{"path": "tests", "name": "test"}
 	],
 	"settings": {}
 }
