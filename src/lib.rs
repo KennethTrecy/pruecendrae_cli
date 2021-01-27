@@ -31,6 +31,10 @@ pub fn spawn_server(address: impl ToSocketAddrs) -> JoinHandle<()> {
 
 		'server: loop {
 			let (size, address) = socket.recv_from(&mut buffer).unwrap();
+			if address.ip() != Ipv4Addr::new(127, 0, 0, 1) {
+				continue;
+			}
+
 			let requests = &buffer[0..size];
 			let (requests, are_all_ok) = parse_requests(requests);
 
