@@ -6,4 +6,4 @@ edition = "2018"
 
 [dependencies]
 chearmyp = { git = "http://repo.local/KennethTrecy/chearmyp", branch = "dev" }
-pruecendrae_core = { git = "http://repo.local/KennethTrecy/pruecendrae_core", branch = "dev" }
+pruecendrae_core = { git = "http://repo.local/KennethTrecy/pruecendrae_core", tag = "v0.1.0" }
