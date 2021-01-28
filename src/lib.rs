@@ -1,5 +1,5 @@
 const MAX_BUFFER_SIZE: usize = 1000;
-const DEFAULT_SERVER_PORT: u16 = 7500;
+pub const DEFAULT_SERVER_PORT: u16 = 7500;
 
 mod log {
 	#[cfg(debug_request)]
