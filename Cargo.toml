@@ -7,3 +7,6 @@ edition = "2018"
 [dependencies]
 chearmyp = { git = "http://repo.local/KennethTrecy/chearmyp", tag = "v0.3.1" }
 pruecendrae_core = { git = "http://repo.local/KennethTrecy/pruecendrae_core", tag = "v0.1.0" }
+
+[features]
+debug_request = []

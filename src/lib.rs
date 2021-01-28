@@ -1,5 +1,18 @@
 const MAX_BUFFER_SIZE: usize = 1000;
 
+mod log {
+	#[cfg(debug_request)]
+	use std::str::from_utf8;
+
+	#[cfg(debug_request)]
+	pub fn debug_request(requests: &[u8]) {
+		println!("Request: {}", from_utf8(requests).unwrap());
+	}
+
+	#[cfg(not(debug_request))]
+	pub fn debug_request(_: &[u8]) {}
+}
+
 mod spawn_server;
 mod process_task_info;
 mod process_configuration_file;
