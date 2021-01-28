@@ -1,6 +1,11 @@
 use std::env::args;
 use std::fs::read_to_string;
-use pruecendrae_cli::{process_configuration_file, spawn_server};
+use pruecendrae_cli::{
+	spawn_server,
+	create_local_port,
+	DEFAULT_SERVER_PORT,
+	process_configuration_file
+};
 
 fn main() {
 	let mut configuration = None;
@@ -23,7 +28,7 @@ fn main() {
 	}
 
 	if args().nth(1).unwrap() == "server" && args().nth(2).unwrap() == "run" {
-		spawn_server("127.0.0.1:7500").join().unwrap();
+		spawn_server(create_local_port(DEFAULT_SERVER_PORT)).join().unwrap();
 	} else if let Some(configuration) = configuration {
 		process_configuration_file(&configuration);
 	} else {
