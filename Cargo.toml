@@ -1,6 +1,6 @@
 [package]
 name = "pruecendrae_cli"
-version = "0.1.0-dev"
+version = "0.1.0"
 authors = ["Kenneth Trecy Tobias <33564322+KennethTrecy@users.noreply.github.com>"]
 edition = "2018"
 
