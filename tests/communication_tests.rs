@@ -1,6 +1,6 @@
-use std::net::{IpAddr, Ipv4Addr, SocketAddr, UdpSocket};
+use std::net::UdpSocket;
 use std::time::Duration;
-use pruecendrae_cli::spawn_server;
+use pruecendrae_cli::{create_local_port, spawn_server};
 
 macro_rules! test {
 	(
@@ -11,7 +11,7 @@ macro_rules! test {
 	) => {
 		#[test]
 		fn $test_name() {
-			let server_address = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), $port);
+			let server_address = create_local_port($port);
 			let _server = spawn_server(server_address);
 			let socket = UdpSocket::bind("127.0.0.1:0").unwrap();
 			socket.set_read_timeout(Some(Duration::from_millis(500)))
