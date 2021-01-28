@@ -13,6 +13,10 @@ mod log {
 	pub fn debug_request(_: &[u8]) {}
 }
 
+mod parse {
+	pub use chearmyp::parse::{Node, parse};
+}
+
 mod spawn_server;
 mod process_task_info;
 mod process_configuration_file;
