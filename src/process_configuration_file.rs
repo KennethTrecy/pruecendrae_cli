@@ -1,6 +1,6 @@
 use std::str::{from_utf8, FromStr};
 use crate::parse::{parse, Node};
-use crate::DEFAULT_SERVER_PORT;
+use crate::{create_local_port, DEFAULT_SERVER_PORT, spawn_server};
 
 pub fn process_configuration_file(configuration: &str) {
 	let configuration_nodes = parse(configuration.as_bytes());
@@ -21,5 +21,7 @@ pub fn process_configuration_file(configuration: &str) {
 		}
 	}
 
-	let _server_port = server_port;
+	let address = create_local_port(server_port);
+	let server = spawn_server(address);
+	server.join().unwrap();
 }
