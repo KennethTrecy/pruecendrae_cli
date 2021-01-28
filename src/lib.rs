@@ -25,6 +25,7 @@ pub fn process_task_info(task: &[u8], address: &str) {
 	}
 }
 
+use std::str::from_utf8;
 use std::net::Ipv4Addr;
 use pruecendrae_core::TaskMaintainer;
 use request::Request;
@@ -43,6 +44,8 @@ pub fn spawn_server(address: impl ToSocketAddrs) -> JoinHandle<()> {
 			}
 
 			let requests = &buffer[0..size];
+			println!("Request: {}", from_utf8(requests).unwrap());
+
 			let (requests, are_all_ok) = parse_requests(requests);
 
 			if are_all_ok {
