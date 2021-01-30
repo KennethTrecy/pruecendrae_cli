@@ -13,14 +13,18 @@ macro_rules! test {
 		and using server port $file_server_port:literal and control port $file_control_port:literal,
 		from $file_test_name:ident;
 
-		control with $controller_function:expr,
+		configure with $additional_configuration:expr,
+		then control with $controller_function:expr,
 		then expect $expected_output:expr
 	) => {
 		#[test]
 		fn $string_test_name() {
 			let server_port = $string_server_port;
 			let controller_port = $string_control_port;
-			let configuration = format!("server\nport: {}", server_port);
+			let configuration = format!(
+				"server\nport: {}\n{}",
+				server_port,
+				$additional_configuration);
 
 			let controller = create_controller_thread(
 				server_port,
@@ -37,7 +41,10 @@ macro_rules! test {
 			let controller_port = $file_control_port;
 
 			let path = &format!("./hidden_tests/{}.pruecendrae.chearmyp", stringify!($file_test_name));
-			let configuration = format!("server\nport: {}", server_port);
+			let configuration = format!(
+				"server\nport: {}\n{}",
+				server_port,
+				$additional_configuration);
 
 			write(path, configuration).unwrap();
 
@@ -94,6 +101,7 @@ test!{
 	and using server port 7512 and control port 7513,
 	from can_run_from_configuration_file;
 
-	control with |_| (),
+	configure with "",
+	then control with |_| (),
 	then expect ()
 }
