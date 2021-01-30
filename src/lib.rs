@@ -2,7 +2,7 @@ const MAX_BUFFER_SIZE: usize = 1000;
 pub const DEFAULT_SERVER_PORT: u16 = 7500;
 
 mod log {
-	#[cfg(debug_request)]
+	#[cfg(any(debug_request, debug_response))]
 	use std::str::from_utf8;
 
 	#[cfg(debug_request)]
@@ -12,6 +12,14 @@ mod log {
 
 	#[cfg(not(debug_request))]
 	pub fn debug_request(_: &[u8]) {}
+
+	#[cfg(debug_response)]
+	pub fn debug_response(requests: &[u8]) {
+		println!("Response: {}", from_utf8(requests).unwrap());
+	}
+
+	#[cfg(not(debug_response))]
+	pub fn debug_response(_: &[u8]) {}
 }
 
 mod parse {

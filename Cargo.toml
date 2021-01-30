@@ -10,3 +10,4 @@ pruecendrae_core = { git = "http://repo.local/KennethTrecy/pruecendrae_core", ta
 
 [features]
 debug_request = []
+debug_response = []
