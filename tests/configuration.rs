@@ -13,7 +13,8 @@ macro_rules! test {
 		and using server port $file_server_port:literal and control port $file_control_port:literal,
 		from $file_test_name:ident;
 
-		expect $expected_output:expr
+		control with $controller_function:expr,
+		then expect $expected_output:expr
 	) => {
 		#[test]
 		fn $string_test_name() {
@@ -21,7 +22,10 @@ macro_rules! test {
 			let controller_port = $string_control_port;
 			let configuration = format!("server\nport: {}", server_port);
 
-			let controller = create_controller_thread(server_port, controller_port);
+			let controller = create_controller_thread(
+				server_port,
+				controller_port,
+				$controller_function);
 			process_configuration_file(&configuration);
 
 			assert_eq!(controller.join().unwrap(), $expected_output);
@@ -42,7 +46,10 @@ macro_rules! test {
 				.spawn()
 				.unwrap();
 
-			let controller = create_controller_thread(server_port, controller_port);
+			let controller = create_controller_thread(
+				server_port,
+				controller_port,
+				$controller_function);
 
 			assert_eq!(controller.join().unwrap(), $expected_output);
 
@@ -54,7 +61,11 @@ macro_rules! test {
 
 const WAIT_TIME: Duration = Duration::from_millis(750);
 
-fn create_controller_thread(server_port: u16, controller_port: u16) -> JoinHandle<()> {
+fn create_controller_thread<T, U>(server_port: u16, controller_port: u16, control: U)
+-> JoinHandle<T>
+where
+	U: 'static + Send + FnOnce(&UdpSocket) -> T,
+	T: 'static + Send {
 	let controller_thread = spawn(move || {
 		sleep(WAIT_TIME);
 		let socket = UdpSocket::bind(create_local_port(server_port));
@@ -64,7 +75,12 @@ fn create_controller_thread(server_port: u16, controller_port: u16) -> JoinHandl
 
 		let socket = UdpSocket::bind(create_local_port(controller_port)).unwrap();
 		let server_address = create_local_port(server_port);
+
+		let controlled_result = control(&socket);
+
 		socket.send_to(b"force kill|", server_address).unwrap();
+
+		controlled_result
 	});
 
 	return controller_thread;
@@ -77,5 +93,6 @@ test!{
 	and using server port 7512 and control port 7513,
 	from can_run_from_configuration_file;
 
-	expect ()
+	control with |_| (),
+	then expect ()
 }
