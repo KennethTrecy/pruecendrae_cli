@@ -7,7 +7,7 @@ use crate::{create_local_port, DEFAULT_SERVER_PORT, MAX_BUFFER_SIZE, spawn_serve
 pub fn process_configuration_file(configuration: &str) {
 	let configuration_nodes = parse(configuration.as_bytes());
 	let mut server_port = DEFAULT_SERVER_PORT;
-	let initial_state = String::new();
+	let mut initial_state = String::new();
 
 	for node in configuration_nodes {
 		match node {
@@ -18,6 +18,32 @@ pub fn process_configuration_file(configuration: &str) {
 						server_port = u16::from_str(port)
 							.expect("Port in the confguration file is invalid");
 					}
+				}
+			},
+			Node::Complex(b"initial state", _, raw_commands) => {
+				// Automatically count expected new lines between commands
+				let mut total_command_length = raw_commands.len();
+
+				let mut commands = Vec::with_capacity(raw_commands.len());
+
+				for command in raw_commands {
+					match command {
+						Node::BlockOthertongue(command_lines) => {
+							for line in command_lines {
+								total_command_length += line.len();
+								commands.push(line);
+							}
+						},
+						Node::LineComment(_) | Node::BlockComment(_) => continue,
+						_ => panic!(
+							"`initial state` configuration only accepts block othertongues and comments")
+					}
+				}
+
+				initial_state = String::with_capacity(total_command_length);
+				for command in commands {
+					initial_state += from_utf8(command).unwrap();
+					initial_state += "\n";
 				}
 			},
 			_ => { panic!("One or more configuration(s) is not supported yet or not at all") }
