@@ -21,7 +21,8 @@ pub fn process_configuration_file(configuration: &str) {
 		}
 	}
 
-	let address = create_local_port(server_port);
-	let server = spawn_server(address);
+	let server_address = create_local_port(server_port);
+	let server = spawn_server(server_address);
+
 	server.join().unwrap();
 }
