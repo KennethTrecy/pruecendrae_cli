@@ -1,5 +1,6 @@
 use std::fs::write;
 use std::net::UdpSocket;
+use std::str::from_utf8;
 use std::time::Duration;
 use std::process::Command;
 use std::thread::{JoinHandle, sleep, spawn};
@@ -104,4 +105,29 @@ test!{
 	configure with "",
 	then control with |_| (),
 	then expect ()
+}
+
+test!{
+	using server port 7514 and control port 7515,
+	from can_run_with_initial_state_from_string;
+
+	and using server port 7516 and control port 7517,
+	from can_run_with_initial_state_from_file;
+
+	configure with &format!(
+		"initial state\n\t===\n{}\n\t===\n",
+		"create\n\ttask A|\n\tcommand: cargo run --bin fake_program"),
+
+	then control with |socket| {
+		socket.send(&b"list|"[..]).unwrap();
+		let mut buffer = [0; 100];
+		let size = socket.recv(&mut buffer).unwrap();
+
+		String::from(from_utf8(&buffer[0..size]).unwrap())
+	},
+
+	then expect String::from("list\n")
+		+ "\tsuccesses\n"
+		+ "\t\ttask A|\n"
+		+ "\t\tcommand: cargo run --bin fake_program\n"
 }
