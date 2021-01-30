@@ -8,10 +8,12 @@ use pruecendrae_cli::{create_local_port, process_configuration_file};
 macro_rules! test {
 	(
 		using server port $string_server_port:literal and control port $string_control_port:literal,
-		$string_test_name:ident expecting $expected_output_from_string_test:expr;
+		from $string_test_name:ident;
 
-		using server port $file_server_port:literal and control port $file_control_port:literal,
-		$file_test_name:ident expecting $expected_output_from_file_test:expr;
+		and using server port $file_server_port:literal and control port $file_control_port:literal,
+		from $file_test_name:ident;
+
+		expect $expected_output:expr
 	) => {
 		#[test]
 		fn $string_test_name() {
@@ -22,7 +24,7 @@ macro_rules! test {
 			let controller = create_controller_thread(server_port, controller_port);
 			process_configuration_file(&configuration);
 
-			assert_eq!(controller.join().unwrap(), $expected_output_from_string_test);
+			assert_eq!(controller.join().unwrap(), $expected_output);
 		}
 
 		#[test]
@@ -42,7 +44,7 @@ macro_rules! test {
 
 			let controller = create_controller_thread(server_port, controller_port);
 
-			assert_eq!(controller.join().unwrap(), $expected_output_from_file_test);
+			assert_eq!(controller.join().unwrap(), $expected_output);
 
 			sleep(WAIT_TIME);
 			assert!(compiled_pruecendrae.try_wait().unwrap().is_some());
@@ -70,8 +72,10 @@ fn create_controller_thread(server_port: u16, controller_port: u16) -> JoinHandl
 
 test!{
 	using server port 7510 and control port 7511,
-	can_run_from_configuration_string expecting ();
+	from can_run_from_configuration_string;
 
-	using server port 7512 and control port 7513,
-	can_run_from_configuration_file expecting ();
+	and using server port 7512 and control port 7513,
+	from can_run_from_configuration_file;
+
+	expect ()
 }
