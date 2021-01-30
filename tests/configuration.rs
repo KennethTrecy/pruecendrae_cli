@@ -75,10 +75,11 @@ where
 
 		let socket = UdpSocket::bind(create_local_port(controller_port)).unwrap();
 		let server_address = create_local_port(server_port);
+		socket.connect(server_address).unwrap();
 
 		let controlled_result = control(&socket);
 
-		socket.send_to(b"force kill|", server_address).unwrap();
+		socket.send(b"force kill|").unwrap();
 
 		controlled_result
 	});
