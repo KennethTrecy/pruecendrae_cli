@@ -5,7 +5,7 @@ authors = ["Kenneth Trecy Tobias <33564322+KennethTrecy@users.noreply.github.com
 edition = "2018"
 
 [dependencies]
-chearmyp = { git = "http://repo.local/KennethTrecy/chearmyp_lexer", tag = "v0.3.1" }
+chearmyp_parser = { git = "http://chearmyp.local/chearmyp_parser", tag = "v0.4.0" }
 pruecendrae_core = { git = "http://pruecendrae.local/pruecendrae_core", tag = "v0.1.0" }
 
 [features]

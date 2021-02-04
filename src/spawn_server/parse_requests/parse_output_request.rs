@@ -1,6 +1,6 @@
 use std::str::{from_utf8, FromStr};
-use chearmyp::parse::Node;
 use pruecendrae_core::Request as MaintainerRequest;
+use crate::parse::Node;
 use crate::spawn_server::request::Request;
 
 const MAX_OUTPUT_SIZE_LABEL: &[u8] = b"max output size";

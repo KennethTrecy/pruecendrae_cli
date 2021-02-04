@@ -1,6 +1,6 @@
 use std::str::from_utf8;
-use chearmyp::parse::Node;
 use pruecendrae_core::Request as MaintainerRequest;
+use crate::parse::Node;
 use crate::spawn_server::request::Request;
 
 pub fn parse_check_request(task_names: Vec<Node>) -> Result<Request, ()> {

@@ -23,7 +23,7 @@ mod log {
 }
 
 mod parse {
-	pub use chearmyp::parse::{Node, parse};
+	pub use chearmyp_parser::{Node, parse};
 }
 
 mod spawn_server;
