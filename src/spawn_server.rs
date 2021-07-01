@@ -48,7 +48,10 @@ pub fn spawn_server(address: impl ToSocketAddrs) -> JoinHandle<()> {
 							let task_names = maintainer.list();
 							encoded_responses += "list\n\tsuccesses\n";
 							for (name, command) in task_names {
-								encoded_responses += &format!("\t\t{}|\n\t\tcommand: {}\n", name, command);
+								encoded_responses += &format!(
+									"\t\t{}|\n\t\t\tcommand: {}\n",
+									name,
+									command);
 							}
 						},
 						Request::ForceKill => {

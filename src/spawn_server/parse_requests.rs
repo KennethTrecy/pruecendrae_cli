@@ -37,7 +37,7 @@ mod t {
 
 	#[test]
 	pub fn can_parse_create_request() {
-		let sample = b"create\n\ttask A|\n\tcommand: task_a";
+		let sample = b"create\n\ttask A|\n\t\tcommand: task_a";
 
 		let parsed_requests = parse_requests(sample);
 
@@ -52,7 +52,7 @@ mod t {
 
 	#[test]
 	pub fn can_parse_output_request() {
-		let sample = b"output\nmax output size: 10\n\ttask B|\n\tcommand: task_b";
+		let sample = b"output\n\tmax output size: 10\n\ttask B|\n\t\tcommand: task_b";
 
 		let parsed_requests = parse_requests(sample);
 

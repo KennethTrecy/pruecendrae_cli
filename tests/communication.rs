@@ -14,7 +14,7 @@ macro_rules! test {
 			let server_address = create_local_port($port);
 			let _server = spawn_server(server_address);
 			let socket = UdpSocket::bind("127.0.0.1:0").unwrap();
-			socket.set_read_timeout(Some(Duration::from_millis(500)))
+			socket.set_read_timeout(Some(Duration::from_millis(1000)))
 				.expect(&format!("Setting read timeout for port {} failed", $port));
 
 			socket.send_to(&$payload[..], &server_address).unwrap();
@@ -34,19 +34,19 @@ macro_rules! test {
 
 test!{
 	using port 7501, can_create_task
-	with b"create\n\tfake|\n\tcommand: cargo run --bin fake_program"
+	with b"create\n\tfake|\n\t\tcommand: cargo run --bin fake_program"
 	expecting b""
 }
 
 test!{
 	using port 7502, can_output_task
-	with b"create\n\tfake|\n\tcommand: cargo run --bin fake_program\noutput\nmax output size: 100\n\tfake|\n"
+	with b"create\n\tfake|\n\t\tcommand: cargo run --bin fake_program\noutput\n\tmax output size: 100\n\tfake|\n"
 	expecting b"output\n\tsuccesses\n\t\tfake\n\t\t\t===\n0\n\n\t\t\t===\n"
 }
 
 test!{
 	using port 7503, can_check_task
-	with b"create\n\tfake|\n\tcommand: cargo run --bin fake_program\ncheck\n\tfake|\n"
+	with b"create\n\tfake|\n\t\tcommand: cargo run --bin fake_program\ncheck\n\tfake|\n"
 	expecting b"check\n\tsuccesses\n\t\tfake|\n"
 }
 
@@ -58,13 +58,13 @@ fn join_server(server: JoinHandle<()>) {
 
 test!{
 	using port 7504, can_force_kill_server
-	with b"create\n\tfake|\n\tcommand: cargo run --bin fake_program\nforce kill|\n"
+	with b"create\n\tfake|\n\t\tcommand: cargo run --bin fake_program\nforce kill|\n"
 	then manipulate server by join_server
 	expecting b""
 }
 
 test!{
 	using port 7505, can_list_task
-	with b"create\n\tfake|\n\tcommand: cargo run --bin fake_program\nlist|\n"
-	expecting b"list\n\tsuccesses\n\t\tfake|\n\t\tcommand: cargo run --bin fake_program\n"
+	with b"create\n\tfake|\n\t\tcommand: cargo run --bin fake_program\nlist|\n"
+	expecting b"list\n\tsuccesses\n\t\tfake|\n\t\t\tcommand: cargo run --bin fake_program\n"
 }
