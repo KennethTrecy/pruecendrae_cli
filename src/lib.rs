@@ -1,6 +1,16 @@
 const MAX_BUFFER_SIZE: usize = 1000;
 pub const DEFAULT_SERVER_PORT: u16 = 7500;
 
+mod native {
+	pub use std::ops::Range;
+	pub use std::collections::VecDeque;
+	pub use std::vec::Vec;
+	pub use std::str::{from_utf8, FromStr};
+	pub use std::convert::From;
+	pub use std::net::UdpSocket;
+	pub use std::cmp::PartialEq;
+}
+
 mod log {
 	#[cfg(any(feature = "debug_request", feature = "debug_response"))]
 	use std::str::from_utf8;
