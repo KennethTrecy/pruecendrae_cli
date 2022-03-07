@@ -4,9 +4,49 @@ version = "0.1.1-dev"
 authors = ["Kenneth Trecy Tobias <33564322+KennethTrecy@users.noreply.github.com>"]
 edition = "2018"
 
-[dependencies]
-chearmyp_parser = { git = "http://chearmyp.local/chearmyp_parser", tag = "v0.5.0" }
-pruecendrae_core = { git = "http://pruecendrae.local/pruecendrae_core", branch = "dev" }
+[dependencies.pruecendrae_core]
+git = "https://github.com/KennethTrecy/pruecendrae_core"
+tag = "v0.2.0-rc.0"
+
+[dependencies.abstract_chearmyp_boundary]
+git = "https://github.com/KennethTrecy/abstract_chearmyp_boundary"
+tag = "v0.2.0"
+features = ["range_boundary", "vec_boundary_collection"]
+
+[dependencies.abstract_chearmyp_source]
+git = "https://github.com/KennethTrecy/abstract_chearmyp_source"
+tag = "v0.6.0"
+features = ["str_source", "slice_u8_source", "vec_source_collection", "str_comparable_to_str", "slice_u8_comparable_to_str"]
+
+[dependencies.abstract_chearmyp_token]
+git = "https://github.com/KennethTrecy/abstract_chearmyp_token"
+tag = "v0.4.1"
+features = ["assertable_token_kind", "vecdeque_token_queue"]
+
+[dependencies.chearmyp_token]
+git = "https://github.com/KennethTrecy/chearmyp_token"
+tag = "v0.7.0"
+features = ["assertable_token"]
+
+[dependencies.chearmyp_lexer]
+git = "https://github.com/KennethTrecy/chearmyp_lexer"
+tag = "v0.7.0"
+features = []
+
+[dependencies.abstract_chearmyp_node]
+git = "https://github.com/KennethTrecy/abstract_chearmyp_node"
+tag = "v0.2.1"
+features = ["assertable_node_kind", "vecdeque_node_queue"]
+
+[dependencies.chearmyp_node]
+git = "https://github.com/KennethTrecy/chearmyp_node"
+tag = "v0.7.0"
+features = ["assertable_node"]
+
+[dependencies.chearmyp_parser]
+git = "https://github.com/KennethTrecy/chearmyp_parser"
+tag = "v0.6.0"
+features = []
 
 [features]
 debug_request = []
