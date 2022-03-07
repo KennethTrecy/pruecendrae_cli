@@ -32,10 +32,52 @@ mod log {
 	pub fn debug_response(_: &[u8]) {}
 }
 
-mod parse {
-	pub use chearmyp_parser::{Node, parse};
+mod abstracts {
+	pub use abstract_chearmyp_node::{
+		AbstractNode,
+		AbstractNodeQueue,
+		AbstractAttacherCollection,
+		AbstractAttacherNode,
+		AbstractSimplexNode,
+		AbstractComplexNode,
+		DynamicAbstractNode
+	};
 }
 
+mod concretes {
+	use crate::native::{
+		Range,
+		Vec,
+		VecDeque
+	};
+
+	pub use abstract_chearmyp_node::NodeKind;
+	use chearmyp_node::Node as GenericNode;
+	use chearmyp_token::Token as GenericToken;
+
+	pub type Boundary = Range<usize>;
+	pub type BoundaryCollection = Vec<Boundary>;
+	pub type Token = GenericToken<Boundary, BoundaryCollection>;
+	pub type AttacherToken = Token;
+	pub type ScopeLevelToken = Token;
+	pub type ComplexToken = Token;
+	pub type SimplexToken = Token;
+	pub type LineCommentToken = Token;
+	pub type BlockCommentToken = Token;
+	pub type LineOthertongueToken = Token;
+	pub type BlockOthertongueToken = Token;
+
+	pub type Node = GenericNode<Boundary, BoundaryCollection>;
+	pub type _NodeForest = VecDeque<Node>;
+
+}
+
+mod chearmyp {
+	pub use chearmyp_lexer::lex;
+	pub use chearmyp_parser::parse;
+}
+
+mod migration_utilities;
 mod spawn_server;
 mod create_local_port;
 mod process_task_info;
