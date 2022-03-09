@@ -1,23 +1,28 @@
-use std::str::{from_utf8, FromStr};
+use crate::native::{VecDeque, FromStr, from_utf8};
 use pruecendrae_core::Request as MaintainerRequest;
-use crate::parse::Node;
+use crate::abstracts::{
+	AbstractAttacherNode,
+	AbstractSimplexNode
+};
+use crate::concretes::Boundary;
 use crate::spawn_server::request::Request;
 
 const MAX_OUTPUT_SIZE_LABEL: &[u8] = b"max output size";
 
-pub fn parse_output_request<'a>(infos: Vec<Node<'a>>, task_names: Vec<Node<'a>>)
--> Result<Request<'a>, ()> {
+pub fn parse_output_request<'a, T, U>(src: &'a [u8], infos: &VecDeque<T>, task_names: &VecDeque<U>)
+-> Result<Request<'a>, ()>
+where
+	T: AbstractAttacherNode<Label = Boundary, Content = Boundary>,
+	U: AbstractSimplexNode<Simplex = Boundary, Attachers = VecDeque<T>>
+{
 	let last_output_size = infos.into_iter().fold(None, |previous_value, info| {
-		if let Node::Attacher(label, content) = info {
-			if label == MAX_OUTPUT_SIZE_LABEL {
-				from_utf8(content)
-					.ok()
-					.and_then(|new_value| usize::from_str(new_value).ok())
-					.and_then(|parsed_value: _| Some(parsed_value))
-					.or(previous_value)
-			} else {
-				previous_value
-			}
+		let label = &src[info.label().clone()];
+		if label == MAX_OUTPUT_SIZE_LABEL {
+			from_utf8(&src[info.content().clone()])
+				.ok()
+				.and_then(|new_value| usize::from_str(new_value).ok())
+				.and_then(|parsed_value: _| Some(parsed_value))
+				.or(previous_value)
 		} else {
 			previous_value
 		}
@@ -30,13 +35,9 @@ pub fn parse_output_request<'a>(infos: Vec<Node<'a>>, task_names: Vec<Node<'a>>)
 	}
 
 	let mut names = Vec::with_capacity(task_names.len());
-	for name in task_names {
-		if let Node::Simplex(name, _) = name {
-			let name = from_utf8(name).unwrap();
-			names.push(name);
-		} else {
-			return Err(());
-		}
+	for simplex in task_names {
+		let name = from_utf8(&src[simplex.name().clone()]).unwrap();
+		names.push(name);
 	}
 
 	Ok(Request::Maintainer(MaintainerRequest::Output(max_output_size, names)))
@@ -44,16 +45,24 @@ pub fn parse_output_request<'a>(infos: Vec<Node<'a>>, task_names: Vec<Node<'a>>)
 
 #[cfg(test)]
 mod t {
-	use super::{Node, MaintainerRequest, MAX_OUTPUT_SIZE_LABEL, parse_output_request, Request};
+	use crate::abstracts::AbstractComplexNode;
+	use crate::migration_utilities::parse;
+	use crate::concretes::Node;
+	use super::{
+		MaintainerRequest,
+		parse_output_request,
+		Request
+	};
 
 	macro_rules! test {
-		($test_name:ident using $infos:expr, and $names:expr, expecting $expected_data:expr) => {
+		($test_name:ident using $sample:expr, expecting $expected_data:expr) => {
 			#[test]
 			fn $test_name() {
-				let infos = $infos;
-				let names = $names;
+				let sample = parse::<Node, Node>($sample).pop_back().unwrap();
+				let infos = sample.attachers();
+				let names = sample.nodes();
 
-				let tasks = parse_output_request(infos, names);
+				let tasks = parse_output_request::<Node, Node>($sample, infos, names);
 
 				assert_eq!(tasks, $expected_data);
 			}
@@ -72,66 +81,43 @@ mod t {
 
 	test!(
 		can_parse_output_with_one_name
-		using vec![Node::Attacher(MAX_OUTPUT_SIZE_LABEL, b"1")],
-		and vec![Node::Simplex(b"task name A", Vec::new())],
+		using b"a\n\tmax output size: 1\n\ttask name A|",
 		expecting ok!(1, vec!["task name A"])
 	);
 
 	test!(
 		can_parse_output_with_multiple_names
-		using vec![Node::Attacher(MAX_OUTPUT_SIZE_LABEL, b"2")],
-		and vec![
-			Node::Simplex(b"task name B", Vec::new()),
-			Node::Simplex(b"task name C", Vec::new())
-		],
+		using b"b\n\tmax output size: 2\n\ttask name B|\n\ttask name C|",
 		expecting ok!(2, vec!["task name B", "task name C"])
 	);
 
 	test!(
 		can_parse_output_with_multiple_max_output_size
-		using vec![
-			Node::Attacher(MAX_OUTPUT_SIZE_LABEL, b"3"),
-			Node::Attacher(MAX_OUTPUT_SIZE_LABEL, b"4")
-		],
-		and vec![Node::Simplex(b"task name D", Vec::new())],
+		using b"c\n\tmax output size: 3\n\tmax output size: 4\n\ttask name D|",
 		expecting ok!(4, vec!["task name D"])
 	);
 
 	test!(
 		can_parse_output_with_incorrect_last_max_output_size_label
-		using vec![
-			Node::Attacher(MAX_OUTPUT_SIZE_LABEL, b"5"),
-			Node::Attacher(b"incorrect max output size label", b"6")
-		],
-		and vec![Node::Simplex(b"task name E", Vec::new())],
+		using b"d\n\tmax output size: 5\n\tincorrect max output size label: 6\n\ttask name E|",
 		expecting ok!(5, vec!["task name E"])
 	);
 
 	test!(
 		can_parse_output_with_incorrect_last_max_output_size_content
-		using vec![
-			Node::Attacher(MAX_OUTPUT_SIZE_LABEL, b"7"),
-			Node::Attacher(MAX_OUTPUT_SIZE_LABEL, b"eight"),
-		],
-		and vec![Node::Simplex(b"task name F", Vec::new())],
+		using b"e\n\tmax output size: 7\n\tmax output size: eight\n\ttask name F|",
 		expecting ok!(7, vec!["task name F"])
 	);
 
 	test!(
 		cannot_parse_output_with_only_one_but_incorrect_max_output_size_label
-		using vec![
-			Node::Attacher(b"incorrect max output label", b"9"),
-		],
-		and vec![Node::Simplex(b"task name F", Vec::new())],
+		using b"f\n\tincorrect max output label: 9\n\ttask name F|",
 		expecting Err(())
 	);
 
 	test!(
 		cannot_parse_output_with_only_one_but_incorrect_max_output_size_content
-		using vec![
-			Node::Attacher(MAX_OUTPUT_SIZE_LABEL, b"ten"),
-		],
-		and vec![Node::Simplex(b"task name G", Vec::new())],
+		using b"g\n\tmax output size: ten\n\ttask name G|",
 		expecting Err(())
 	);
 }

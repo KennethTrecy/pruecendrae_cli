@@ -2,7 +2,12 @@ mod parse_create_request;
 mod parse_output_request;
 mod parse_check_request;
 
-use crate::parse::{Node, parse};
+use crate::abstracts::DynamicAbstractNode;
+use crate::concretes::{
+	NodeKind,
+	Node
+};
+use crate::migration_utilities::{parse, is_concept_equal};
 use crate::spawn_server::request::Request;
 use parse_create_request::parse_create_request;
 use parse_output_request::parse_output_request;
@@ -10,17 +15,24 @@ use parse_check_request::parse_check_request;
 
 pub fn parse_requests(src: &[u8]) -> (Vec<Result<Request, ()>>, bool) {
 	let nodes = parse(src);
+
 	let mut requests = Vec::with_capacity(nodes.len());
 
-	for node in nodes {
-		let request = match node {
-			Node::Complex(b"create", _, tasks) => parse_create_request(tasks),
-			Node::Complex(b"output", infos, task_names) => parse_output_request(infos, task_names),
-			Node::Complex(b"check", _, task_names) => parse_check_request(task_names),
-			Node::Simplex(b"list", _) => Ok(Request::List),
-			Node::Simplex(b"force kill", _) => Ok(Request::ForceKill),
-			_ => todo!()
+	for node in nodes.into_iter() {
+		let request = if is_concept_equal(src, &node, NodeKind::Complex, b"create") {
+			parse_create_request::<Node, Node>(src, node.nodes())
+		} else if is_concept_equal(src, &node, NodeKind::Complex, b"output") {
+			parse_output_request::<Node, Node>(src, node.attachers(), node.nodes())
+		} else if is_concept_equal(src, &node, NodeKind::Complex, b"check") {
+			parse_check_request::<Node>(src, node.nodes())
+		} else if is_concept_equal(src, &node, NodeKind::Simplex, b"list") {
+			Ok(Request::List)
+		} else if is_concept_equal(src, &node, NodeKind::Simplex, b"force kill") {
+			Ok(Request::ForceKill)
+		} else {
+			todo!()
 		};
+
 		requests.push(request);
 	}
 
