@@ -6,7 +6,7 @@ edition = "2018"
 
 [dependencies.pruecendrae_core]
 git = "https://github.com/KennethTrecy/pruecendrae_core"
-tag = "v0.2.0-rc.0"
+tag = "v0.2.0"
 
 [dependencies.abstract_chearmyp_boundary]
 git = "https://github.com/KennethTrecy/abstract_chearmyp_boundary"
